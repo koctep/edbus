@@ -1,0 +1,11 @@
+-define(byte,				8/unsigned-integer).
+-define(int16,			16/signed-?endian-integer).
+-define(uint16,			16/unsigned-?endian-integer).
+-define(int32,			32/signed-?endian-integer).
+-define(uint32,			32/unsigned-?endian-integer).
+-define(int64,			64/signed-?endian-integer).
+-define(uint64,			64/unsigned-?endian-integer).
+-define(double,			64/signed-?endian-float).
+
+-define(boolean,		?uint32).
+-define(unix_fd,		?uint32).

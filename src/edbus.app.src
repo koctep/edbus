@@ -1,0 +1,11 @@
+{application, edbus,
+ [
+  {description, "Erlang DBUS client"},
+  {vsn, "0.0.0"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib
+                 ]},
+  {env, []}
+ ]}.
