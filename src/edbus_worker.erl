@@ -23,7 +23,8 @@
 				 terminate/2,
 				 code_change/3]).
 
--import(edbus_data, [pack/1, unpack/1, to_hex/1]).
+-import(edbus_data, [pack/1, unpack/1]).
+-import(typextfun, [to_hex/1]).
 
 -include_lib("messages.hrl").
 

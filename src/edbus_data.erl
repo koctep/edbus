@@ -6,9 +6,6 @@
 -export([extend/1]).
 -export([restrict/1]).
 -export([msg_fill/3]).
--export([to_hex/1]).
--export([from_hex/1]).
--export([discharge/3]).
 -export([endian/1]).
 -export([msg_type/1]).
 -export([header_type/1]).
@@ -16,10 +13,8 @@
 -export([set/3]).
 -export([align_type_len/2]).
 -export([header_len/1]).
--export([binary_reverse/1]).
--export([remove_trailing/2]).
--export([remove_char/2]).
 
+-import(typextfun, [position/2]).
 
 -define(message_types, {dbus_call, dbus_reply, dbus_error, dbus_signal}).
 -define(header_types, {path, interface, member, error_name, reply_serial, destination, sender, signature, unix_fds}).
@@ -126,35 +121,11 @@ msg_fill(Msg, [], Body) ->
 	{Head, [<<>> | T]} = lists:split(6, tuple_to_list(Msg)),
 	list_to_tuple(Head ++ [Body | T]).
 
-to_hex(D) when is_binary(D) ->
-	<< <<(to16(X))/integer>> || <<X:4>> <= D >>.
-to16(B) when B >= 0, B =< 9 -> $0 + B;
-to16(B) when B < 16 -> B rem 10 + $a.
-
-from_hex(D) when is_binary(D) ->
-	<< <<(from16(X, Y))/integer>> || <<X:8, Y:8>> <= D >>.
-from16(A, B) -> 16 * from16(A) + from16(B).
-from16(A) when A >= $0, A =< $9 -> A - $0;
-from16(A) when A >= $a, A =< $f -> A - $a + 10;
-from16(A) when A >= $A, A =< $F -> A - $A + 10.
-
-discharge(Len, Separator, Data) when Len > 0 -> discharge(Len, Separator, Data, <<>>).
-discharge(Len, Separator, Data, Result) when Len > 0, byte_size(Data) > Len ->
-	<<D:Len/binary, Rest/binary>> = Data,
-	discharge(Len, Separator, Rest, <<Result/binary, D/binary, Separator/binary>>);
-discharge(_, Separator, Data, Result) -> <<Result/binary, Separator/binary, Data/binary>>.
-
-list_position(E, L) -> list_position(E, L, 1).
-
-list_position(E, [E | _], N) -> N;
-list_position(E, [_ | T], N) -> list_position(E, T, N + 1);
-list_position(_, [], _) -> 0.
-
 msg_type(I) when is_integer(I) -> element(I, ?message_types);
-msg_type(T) when is_atom(T)	-> list_position(T, tuple_to_list(?message_types)).
+msg_type(T) when is_atom(T)	-> position(T, tuple_to_list(?message_types)).
 
 header_type(I) when is_integer(I) -> element(I, ?header_types);
-header_type(T) when is_atom(T) -> list_position(T, tuple_to_list(?header_types)).
+header_type(T) when is_atom(T) -> position(T, tuple_to_list(?header_types)).
 
 header_value_type(T)
 	when
@@ -194,14 +165,3 @@ align_len(L, Align) when L rem Align =:= 0	-> L;
 align_len(L, Align)													-> L + (Align - L rem Align).
 
 header_len(L) -> align_len(L, 8).
-
-remove_trailing(D, Data) -> binary_reverse(remove_char(D, binary_reverse(Data))).
-
-remove_char(D, <<D, Data/binary>>) ->
-	remove_trailing(D, Data);
-remove_char(_, Data) -> binary_reverse(Data).
-
-binary_reverse(Data) ->
-	L = bit_size(Data),
-	<<I:L/big-integer>> = Data,
-	<<I:L/little-integer>>.

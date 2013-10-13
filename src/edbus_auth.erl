@@ -13,7 +13,7 @@
 -export([anonymous/3]).
 -export([dbus_cookie_sha1/3]).
 
--import(edbus_data, [to_hex/1, from_hex/1, binary_reverse/1]).
+-import(typextfun, [to_hex/1, from_hex/1, trim/3]).
 
 -define(methods, [
 									<<"ANONYMOUS">>,
@@ -144,8 +144,4 @@ send(Socket, Data) ->
 	gen_tcp:send(Socket, <<Data/binary, "\r\n">>).
 
 remove_crlf(Str) ->
-	binary_reverse(remove_crlf1(binary_reverse(Str))).
-
-remove_crlf1(<<"\n", Rest/binary>>) -> remove_crlf1(Rest);
-remove_crlf1(<<"\r", Rest/binary>>) -> remove_crlf1(Rest);
-remove_crlf1(Data) -> Data.
+	trim(right, Str, "\r\n").

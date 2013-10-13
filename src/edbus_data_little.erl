@@ -13,9 +13,11 @@
 -import(edbus_data, [extend/1, restrict/1, msg_fill/3]).
 -import(edbus_data, [msg_type/1, header_type/1, header_value_type/1, header_len/1, align_type_len/2]).
 
--import(edbus_data, [to_hex/1, discharge/3]).
+-import(typextfun, [to_hex/1, discharge/2]).
 
 -include("data.hrl").
+
+-define(hex(Data), discharge(8, to_hex(Data))).
 
 unpack(<<MsgType:?byte,
 				 Flags:?byte,
@@ -57,7 +59,7 @@ headers(<<HeaderFieldType, 1, ValType, 0, Rest/binary>> = Data, Headers) ->
 	headers(Rest1, [Header | Headers]);
 headers(<<>>, Headers) -> Headers;
 headers(Data, Headers) ->
-	lager:warning("unparsed ~p", [to_hex(Data)]),
+	lager:warning("unparsed ~p", [?hex(Data)]),
 	lager:warning("headers ~p", [Headers]),
 	Headers.
 
@@ -66,7 +68,7 @@ unpack_body(Sign, Body) ->
 
 unpack_body(<<>>, <<>>, R) -> lists:reverse(R);
 unpack_body(Sign, Body, R) when Sign =:= <<>>; Body =:= <<>> ->
-	lager:warning("unparsed ~p ~p", [Sign, to_hex(Body)]),
+	lager:warning("unparsed ~p ~p", [Sign, ?hex(Body)]),
 	lists:reverse(R);
 unpack_body(Sign, Body, R) ->
 	{Type, RestSign} = get_type(Sign),
