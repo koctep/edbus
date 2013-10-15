@@ -73,10 +73,7 @@ init([Host, Port, NonceFile]) ->
 	{ok, Socket} = gen_tcp:connect(Host, Port, [{active, true}, binary, {buffer, 65535}]),
 	case NonceFile of
 		undefined -> ok;
-		_ ->
-			{ok, FileContent} = file:read_file(NonceFile),
-			16 = byte_size(FileContent),
-			gen_tcp:send(Socket, FileContent)
+		_ -> {ok, 16} = file:sendfile(NonceFile, Socket)
 	end,
 	gen_tcp:send(Socket, <<0>>),
 	{ok, _AuthData} = edbus_auth:init(Socket),
