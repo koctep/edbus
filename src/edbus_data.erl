@@ -154,7 +154,8 @@ alignment($t) -> 8;
 alignment($d) -> 8;
 alignment($o) -> alignment($s);
 alignment($v) -> 1;
-alignment($h) -> 4.
+alignment($h) -> 4;
+alignment($b) -> 4.
 
 align_type_len(L, {value, T}) ->
 	align_len(L, alignment(T));
